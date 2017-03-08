@@ -7,39 +7,38 @@
 using namespace std;
 
 void shiftHead(Node*&, Node*);
-char* removeSpaces(char*);
 Node* convertToPostfix(Node*);
-void printNode(Node*, Node*, char*, int);
+void printNode(Node*, Node*, char*&, int);
 void stringToStack(Node*, char*);
 void bumpDown(Node*);
 bool isNumber(char);
 bool isOperator(char);
 bool checkPrecedence(char, char);
 void printHead(Node*);
+void createExpressionTree(char*);
 
 void expressionInfix(TreeNode*);
 void expressionPrefix(TreeNode*);
 void expressionPostfix(TreeNode*);
 
 void bumpStack(TreeNode**&, TreeNode*);
-void removeTop(TreeNode**&, TreeNode*);
-
+void removeTop(TreeNode**&, TreeNode*&);
+void print2dTreeNode(TreeNode**);
 
 int main(){
+
+	
 	Node* stack = new Node("dank");
 	char* input= "5 + ((1 + 2) * 4) - 3";//////correct -> 5 1 2 + 4 * + 3 −
 	//cin.getline(input, 50);
-	char* postfix = "5 1 2 + 4 * + 3 −";
+	char* postfix = "5 1 2 + 4 * + 3 -";
 	
-	stringToStack(stack, input);
+	//stringToStack(stack, input);
 	
 	Node* current = stack;
 	
-	convertToPostfix(stack);
-	current = stack;
-	
-	//printNode(stack, current);
-	//cout << "5 1 2 + 4 * + 3 -";
+	//convertToPostfix(stack);
+	createExpressionTree(postfix);
 }
 void stringToStack(Node* head, char* string){
 	int counter = 0;
@@ -79,20 +78,20 @@ void stringToStack(Node* head, char* string){
 
 void createExpressionTree(char* postfixNotation){//creates expression tree after the input is converted to postfix, runs through printNode rofl
 	TreeNode** treeStack = new TreeNode*[30];
-	
 	for(int x = 0; x < 30; x++){
 		treeStack[x] = new TreeNode(NULL, '\0');
 	}
-	
 	
 	int count = 0;
 	int currentLength = 0;
 	char* currentNum = new char[4];
 	bool finishedNum = false;
 	
+
 	while(postfixNotation[count] != '\0'){
 		
 		char c = postfixNotation[count];
+		cout << c;
 		
 		if(finishedNum){
 			
@@ -113,11 +112,9 @@ void createExpressionTree(char* postfixNotation){//creates expression tree after
 				
 				tempNode->setLeft(tempNode3);
 				tempNode->setRight(tempNode2);
-				tempNode3->setParent(tempNode);
+				tempNode3->setParent(tempNode);//parent is null
 				tempNode2->setParent(tempNode);
-				
 				bumpStack(treeStack, tempNode);
-				
 			}
 			
 			currentLength = 0;
@@ -140,10 +137,12 @@ void createExpressionTree(char* postfixNotation){//creates expression tree after
 			}
 		}
 		
+		//print2dTreeNode(treeStack);
 		count++;
 	}
 	
-	cout << "Input which format you want you thing in, (1 == infix, 2 == prefix, 3 == postfix) " << endl;
+	cout << "\n\nInput which format you want you thing in, (1 == infix, 2 == prefix, 3 == postfix) " << endl;	
+	
 	char* input = new char[2];
 	cin.getline(input, 2);
 	if(input[0] == '1'){
@@ -159,8 +158,17 @@ void createExpressionTree(char* postfixNotation){//creates expression tree after
 void expressionInfix(TreeNode* expressionTree) {
 	if ((expressionTree != NULL)) {
 		expressionInfix(expressionTree->getLeft());
-		cout << expressionTree->getChar();
+		cout << expressionTree->getChar() << " ";
 		expressionInfix(expressionTree->getRight());
+	}
+}
+
+void print2dTreeNode(TreeNode** stack){
+	int count = 0;
+	while(count < 30){
+		expressionInfix(stack[count]);
+		cout << "\n";
+		count++;
 	}
 }
 
@@ -168,13 +176,13 @@ void expressionPostfix(TreeNode* expressionTree) {
 	if ((expressionTree != NULL)) {
 		expressionInfix(expressionTree->getLeft());
 		expressionInfix(expressionTree->getRight());
-		cout << expressionTree->getChar();
+		cout << expressionTree->getChar() << " ";
 	}
 }
 
 void expressionPrefix(TreeNode* expressionTree) {
 	if ((expressionTree != NULL)) {
-		cout << expressionTree->getChar();
+		cout << expressionTree->getChar() << " ";
 		expressionInfix(expressionTree->getLeft());
 		expressionInfix(expressionTree->getRight());
 	}
@@ -182,25 +190,24 @@ void expressionPrefix(TreeNode* expressionTree) {
 
 void bumpStack(TreeNode**& stack, TreeNode* newTree){//bumps stack pretty shittely
 	int count = 1;
-	
 	while(true){
 		if(stack[count]->getChar() == '\0'){
 			break;
 		}
 		stack[count] = stack[count-1];
 		
-		
 		count++;
-		if(count == 30){
+		if(count == 27){
+			//break;
 			cout << "Fatal Error: bumpstack" << endl;
-			exit(420);
+			//exit(420);
 		}
 	}
 	
 	stack[0] = newTree;
 }
 
-void removeTop(TreeNode**& stack, TreeNode* fromTop){//fromtop should be null, removes top of stack pretty shittely
+void removeTop(TreeNode**& stack, TreeNode*& fromTop){//fromtop should be null, removes top of stack pretty shittely
 	int count = 0;
 
 	fromTop = stack[0];
@@ -221,10 +228,10 @@ void removeTop(TreeNode**& stack, TreeNode* fromTop){//fromtop should be null, r
 	
 }
 
-void printNode(Node* sourceNode, Node* currentNode, char* postfixNotation, int count){//prints node thr
+void printNode(Node* sourceNode, Node* currentNode, char*& postfixNotation, int count){//prints node thr
 	if((currentNode)->getPrevious() == NULL) {//if the currentNode is the first node in the list
 		try{//this runs to prevent an error when list is empty, probably never fails here
-			cout << currentNode->getChar();
+			//cout << currentNode->getChar();
 			
 			char* c2 = currentNode->getChar();
 			postfixNotation[count] = c2[0];
@@ -240,7 +247,7 @@ void printNode(Node* sourceNode, Node* currentNode, char* postfixNotation, int c
 		}
 
 	}else{
-		cout << currentNode->getChar();
+		//cout << currentNode->getChar();
 
 		char* c2 = currentNode->getChar();
 		postfixNotation[count] = c2[0];
@@ -251,8 +258,10 @@ void printNode(Node* sourceNode, Node* currentNode, char* postfixNotation, int c
 			printNode(sourceNode, currentNode, postfixNotation, count);
 			
 		}else{//end of printing, runs the expression tree rofl
+			
 			postfixNotation[count + 1] = '\0';
-			createExpressionTree(postfixNotation);
+	
+			//createExpressionTree(postfixNotation);
 			
 			cout << endl;
 		}

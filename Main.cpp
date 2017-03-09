@@ -1,8 +1,11 @@
 #include "Node.h"
 #include "treeNode.h"
-#include <string.h>
-#include <stdlib.h>
 #include <iostream>
+#include <fstream> 
+#include <ctype.h>
+#include <cstdlib>
+#include <stdio.h>
+#include <math.h>
 
 using namespace std;
 
@@ -24,14 +27,43 @@ void expressionPostfix(TreeNode*);
 void bumpStack(TreeNode**&, TreeNode*);
 void removeTop(TreeNode**&, TreeNode*&);
 void print2dTreeNode(TreeNode**);
+void visualizeTree(TreeNode*);
+char* directionsToBalancedNode(int, int, char*&);
+
 
 int main(){
-
+	/*
+	TreeNode** treeStack = new TreeNode*[30];
+	for(int x = 0; x < 30; x++){
+		treeStack[x] = new TreeNode(NULL, "null");
+	}
+	
+	TreeNode* op = new TreeNode(NULL, "+");
+	TreeNode* left = new TreeNode(NULL, "0");
+	TreeNode* right = new TreeNode(NULL, "1");
+	
+	op->setLeft(left);
+	
+	treeStack[0] = op;
+	cout<< "\nNew Stack:\n";
+	print2dTreeNode(treeStack);
+	
+	bumpStack(treeStack, right);
+	
+	cout<< "\nNew Stack:\n";
+	print2dTreeNode(treeStack);
+	TreeNode* n;
+	removeTop(treeStack, n);
+	
+	cout<< "\nNew Stack:\n";
+	print2dTreeNode(treeStack);
+	//cout << n->getChar() << endl;
+	*/
 	
 	Node* stack = new Node("dank");
 	char* input= "5 + ((1 + 2) * 4) - 3";//////correct -> 5 1 2 + 4 * + 3 −
 	//cin.getline(input, 50);
-	char* postfix = "5 1 2 + 4 * + 3 -";
+	char* postfix = "5 1 2 + 4 * + 3 -"; 
 	
 	//stringToStack(stack, input);
 	
@@ -79,7 +111,7 @@ void stringToStack(Node* head, char* string){
 void createExpressionTree(char* postfixNotation){//creates expression tree after the input is converted to postfix, runs through printNode rofl
 	TreeNode** treeStack = new TreeNode*[30];
 	for(int x = 0; x < 30; x++){
-		treeStack[x] = new TreeNode(NULL, '\0');
+		treeStack[x] = new TreeNode(NULL, "null");
 	}
 	
 	int count = 0;
@@ -91,56 +123,76 @@ void createExpressionTree(char* postfixNotation){//creates expression tree after
 	while(postfixNotation[count] != '\0'){
 		
 		char c = postfixNotation[count];
-		cout << c;
+		//cout << c;
+			
+		if(c == ' '){
+
+		}else if(isOperator(c)){
+			
+			currentNum[0] = c;
+			currentNum[1] = '\0';
+			finishedNum = true;
+			
+		}else if(isNumber(c)){//digit
+		
+			currentNum[currentLength] = c;
+			currentNum[currentLength + 1] = '\0';
+			currentLength++;
+			
+			if(!isNumber(postfixNotation[count + 1])){
+				
+				finishedNum = true;
+				currentNum[currentLength + 1] = '\0';
+				
+			}
+		}
 		
 		if(finishedNum){
 			
-			if(isOperator(currentNum[0])){
+			if(!isOperator(currentNum[0])){
 				
-				TreeNode* tempNode = new TreeNode(NULL, currentNum);
+				char* c2 = new char[4];
+				strcpy(c2, currentNum);
+				
+				TreeNode* tempNode = new TreeNode(NULL, c2);
 				bumpStack(treeStack, tempNode);
 				
 			}else{
 				
-				TreeNode* tempNode = new TreeNode(NULL, currentNum);
+				char* c2 = new char[4];
+				strcpy(c2, currentNum);
+				
+				TreeNode* tempNode = new TreeNode(NULL, c2);
 				
 				TreeNode* tempNode2;
 				removeTop(treeStack, tempNode2);
 				
 				TreeNode* tempNode3;
-				removeTop(treeStack, tempNode3);
+				removeTop(treeStack, tempNode3);//removes top of stack and places it in tempNode3
 				
 				tempNode->setLeft(tempNode3);
 				tempNode->setRight(tempNode2);
-				tempNode3->setParent(tempNode);//parent is null
+				
+				tempNode3->setParent(tempNode);
 				tempNode2->setParent(tempNode);
 				bumpStack(treeStack, tempNode);
 			}
 			
 			currentLength = 0;
 			finishedNum = false;
-		}else{
-			
-			if(c == ' '){
-
-			}else if(isOperator(c)){
-				currentNum[0] = c;
-				currentNum[1] = '\0';
-				finishedNum = true;
-			}else{//digit
-				currentNum[currentLength] = c;
-				currentLength++;
-				if(postfixNotation[count + 1] == ' '){
-					finishedNum = true;
-					currentNum[currentLength + 1] = '\0';
-				}
-			}
 		}
 		
+		cout << "Newline: " << endl;
+		print2dTreeNode(treeStack);
+		
+		count++;//
+		
+		
 		//print2dTreeNode(treeStack);
-		count++;
+		
 	}
-	
+	print2dTreeNode(treeStack);
+	visualizeTree(treeStack[0]);
 	cout << "\n\nInput which format you want you thing in, (1 == infix, 2 == prefix, 3 == postfix) " << endl;	
 	
 	char* input = new char[2];
@@ -158,7 +210,9 @@ void createExpressionTree(char* postfixNotation){//creates expression tree after
 void expressionInfix(TreeNode* expressionTree) {
 	if ((expressionTree != NULL)) {
 		expressionInfix(expressionTree->getLeft());
-		cout << expressionTree->getChar() << " ";
+		if(expressionTree->getChar() != "null"){
+			cout << expressionTree->getChar() << " ";
+		}
 		expressionInfix(expressionTree->getRight());
 	}
 }
@@ -166,8 +220,12 @@ void expressionInfix(TreeNode* expressionTree) {
 void print2dTreeNode(TreeNode** stack){
 	int count = 0;
 	while(count < 30){
-		expressionInfix(stack[count]);
+		expressionPostfix(stack[count]);
 		cout << "\n";
+		
+		if(stack[count]->getChar() == "null"){
+			break;
+		}
 		count++;
 	}
 }
@@ -176,31 +234,55 @@ void expressionPostfix(TreeNode* expressionTree) {
 	if ((expressionTree != NULL)) {
 		expressionInfix(expressionTree->getLeft());
 		expressionInfix(expressionTree->getRight());
-		cout << expressionTree->getChar() << " ";
+		if(expressionTree->getChar() != "null"){
+			cout << expressionTree->getChar() << " ";
+		}
+		
 	}
 }
 
 void expressionPrefix(TreeNode* expressionTree) {
 	if ((expressionTree != NULL)) {
-		cout << expressionTree->getChar() << " ";
+		if(expressionTree->getChar() != "null"){
+			cout << expressionTree->getChar() << " ";
+		}
 		expressionInfix(expressionTree->getLeft());
 		expressionInfix(expressionTree->getRight());
 	}
 }
 
 void bumpStack(TreeNode**& stack, TreeNode* newTree){//bumps stack pretty shittely
-	int count = 1;
+	int count = 0;
+	TreeNode* lastMove = NULL;
 	while(true){
-		if(stack[count]->getChar() == '\0'){
+		//cout << "Count = " << count << " : " << stack[count + 1]->getChar() << endl;
+		if(stack[count + 1]->getChar() == "null"){
+			if(lastMove != NULL){
+				TreeNode* tNode = stack[count + 1];
+				stack[count + 1] = lastMove;
+				lastMove = tNode;
+			}else{
+				lastMove = stack[count + 1];
+				stack[count + 1] = stack[count];
+			}
+				
 			break;
 		}
-		stack[count] = stack[count-1];
+		if(lastMove != NULL){
+			TreeNode* tNode = stack[count + 1];
+			stack[count + 1] = lastMove;
+			lastMove = tNode;
+		}else{
+			lastMove = stack[count + 1];
+			stack[count + 1] = stack[count];
+		}
 		
+
 		count++;
-		if(count == 27){
+		if(count == 29){
 			//break;
 			cout << "Fatal Error: bumpstack" << endl;
-			//exit(420);
+			exit(420);
 		}
 	}
 	
@@ -209,19 +291,21 @@ void bumpStack(TreeNode**& stack, TreeNode* newTree){//bumps stack pretty shitte
 
 void removeTop(TreeNode**& stack, TreeNode*& fromTop){//fromtop should be null, removes top of stack pretty shittely
 	int count = 0;
-
+	
+	
 	fromTop = stack[0];
 
 	while(true){
 		stack[count] = stack[count+1];
 		
-		if(stack[count]->getChar() == '\0'){
+		if(stack[count]->getChar() == "null"){
+			stack[count+1]->setChar("null");
 			break;
 		}
-		
+		//cout << stack[count]->getChar() << endl;
 		count++;
 		if(count == 29){
-			cout << "Fatal Error: bumpstack" << endl;
+			cout << "Fatal Error: remove top" << endl;
 			exit(421);
 		}
 	}
@@ -436,6 +520,97 @@ void printHead(Node* current){
 	char* postfixNotation = new char[10000];
 	count = 0;
 	printNode(current, tCurrent, postfixNotation, count);
+}
+
+void visualizeTree(TreeNode* head){
+	int currentDepth = 0;
+	int depthProgression = 1;
+	TreeNode* tCurrent = head;
+
+	while(tCurrent != NULL){
+		
+		if(currentDepth == 0){
+			cout << "0: " ;
+			cout << tCurrent->getChar() << " || ";
+		}else{
+			char* directions;
+			directionsToBalancedNode(currentDepth, depthProgression, directions);//sets direction
+			int count = 0;
+			while(directions[count] != '\0'){//adds newNode to the most balanced spot by following the directions provided
+				if(directions[count] == 'L'){
+					if(tCurrent->getLeft() != NULL){
+						tCurrent = tCurrent->getLeft();
+					}else{
+						tCurrent = NULL;
+						break;
+					}
+					
+				}else{
+					if(tCurrent->getRight() != NULL){
+						tCurrent = tCurrent->getRight();
+					}else{
+						tCurrent = NULL;
+						break;
+					}
+				}
+
+				count++;
+			}
+			
+			if(tCurrent == NULL){
+				break;
+			}else{
+				if(depthProgression == 1){
+					cout << currentDepth << ": ";
+				}
+				
+				cout << tCurrent->getChar() << " || ";
+			}
+			
+		}
+		
+		depthProgression++;
+		if(depthProgression > pow(2, currentDepth)){//designates where the most balanced spot on the tree to add next
+			depthProgression = 1;
+			currentDepth++;
+			cout << "\n";
+		}
+		if(tCurrent != NULL){
+			tCurrent = head;
+		}
+	}
+	
+	cout << "\n\n";
+}
+
+char* directionsToBalancedNode(int currentDepth, int depthProgression, char*& directions){//this gives directions to next balanced node in the heap
+	directions = new char[currentDepth + 1];
+	
+	for(int x  = currentDepth; x > 0; x--){//builds upwards from the designated location
+		if(depthProgression % 2 ==  0){
+			directions[x - 1] = 'R';
+		}else{
+			directions[x - 1] = 'L';
+		}
+		int newProgression = 1;
+		int tProgression =  depthProgression;// 2
+		bool running = true;
+		
+		while(running){
+			tProgression =  tProgression -2;
+			if(tProgression > 0){
+				//cout << tProgression << "TProg"<< endl;
+				newProgression++;
+			}else{
+				//cout << newProgression << endl;
+				running = false;
+			}
+		}
+		depthProgression = newProgression;
+	}
+	directions[currentDepth] = '\0';
+	
+	return directions;
 }
 
 bool checkPrecedence(char o1, char o2){//left associative, checks if first operator has higher precedence than second

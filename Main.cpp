@@ -42,7 +42,7 @@ int main(){
 	
 	Node* current = stack;
 	
-	convertToPostfix(stack);
+	convertToPostfix(stack);//create expression tree called from inside printNode lol
 }
 void stringToStack(Node* head, char* string){
 	int counter = 0;
@@ -95,7 +95,7 @@ void createExpressionTree(char* postfixNotation){//creates expression tree after
 		seperatedChars[x][0] = '\0';
 	}
 	
-	while(postfixNotation[count] != '\0'){
+	while(postfixNotation[count] != '\0'){//seperates Chars in here into 2d array
 		char c = postfixNotation[count];
 		
 		if(c == ' '){
@@ -130,7 +130,7 @@ void createExpressionTree(char* postfixNotation){//creates expression tree after
 	}
 
 
-	for(int x = 0; x < arrayPos + 1; x++){
+	for(int x = 0; x < arrayPos + 1; x++){//stack constructed here
 		
 		if(!isOperator(seperatedChars[x][0])){
 			
@@ -178,7 +178,7 @@ void createExpressionTree(char* postfixNotation){//creates expression tree after
 	
 }
 
-void expressionInfix(TreeNode* expressionTree) {
+void expressionInfix(TreeNode* expressionTree) {//recursive 
 	if ((expressionTree != NULL)) {
 		
 		expressionInfix(expressionTree->getLeft());
@@ -190,7 +190,7 @@ void expressionInfix(TreeNode* expressionTree) {
 void print2dTreeNode(TreeNode** stack){
 	int count = 0;
 	while(count < 30){
-		expressionPostfix(stack[count]);
+		expressionPostfix(stack[count]);//defaults to print in postfix
 		cout << "\n";
 		
 		if(stack[count]->getChar() == "null"){
@@ -200,7 +200,7 @@ void print2dTreeNode(TreeNode** stack){
 	}
 }
 
-void expressionPostfix(TreeNode* expressionTree) {
+void expressionPostfix(TreeNode* expressionTree) {//recursive 
 	if ((expressionTree != NULL)) {
 		
 		expressionPostfix(expressionTree->getLeft());
@@ -210,7 +210,7 @@ void expressionPostfix(TreeNode* expressionTree) {
 	}
 }
 
-void expressionPrefix(TreeNode* expressionTree) {
+void expressionPrefix(TreeNode* expressionTree) {//recursive 
 	if ((expressionTree != NULL)) {
 		
 		cout << expressionTree->getChar() << " ";
@@ -219,7 +219,7 @@ void expressionPrefix(TreeNode* expressionTree) {
 	}
 }
 
-void bumpStack(TreeNode**& stack, TreeNode* newTree){//bumps stack pretty shittely
+void bumpStack(TreeNode**& stack, TreeNode* newTree){//bumps stack pretty shittely, the classic break to get out of a while loop
 	int count = 0;
 	TreeNode* lastMove = NULL;
 	while(true){
@@ -263,7 +263,7 @@ void removeTop(TreeNode**& stack, TreeNode*& fromTop){//fromtop should be null, 
 	
 	fromTop = stack[0];
 
-	while(true){
+	while(true){//same as bump but backwards
 		stack[count] = stack[count+1];
 		
 		if(stack[count]->getChar() == "null"){
@@ -324,7 +324,7 @@ void printNode(Node* sourceNode, Node* currentNode, char*& postfixNotation, int 
 }
 
 
-Node* convertToPostfix(Node* head){
+Node* convertToPostfix(Node* head){//from last assignment, converts a node to postfix
 	cout << "\n\n";
 	Node* tCurrent = head;
 	Node* outputQ = new Node(" ");
@@ -476,13 +476,13 @@ Node* convertToPostfix(Node* head){
 	return NULL;
 }
 
-void printHead(Node* current){
+void printHead(Node* current){//prints the head of node, goes upwards to the most parenting parent
 	int count = 0;
 	while(current->getPrevious() != NULL){
 		count++;
 		current = current->getPrevious();
 	}
-	cout << count << " below current." << endl;
+	cout << count << " below current." << endl;//good to know how many is the boy
 	Node* tCurrent = current;
 	
 	char* postfixNotation = new char[10000];

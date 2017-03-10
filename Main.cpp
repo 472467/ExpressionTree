@@ -32,45 +32,17 @@ char* directionsToBalancedNode(int, int, char*&);
 
 
 int main(){
-	/*
-	TreeNode** treeStack = new TreeNode*[30];
-	for(int x = 0; x < 30; x++){
-		treeStack[x] = new TreeNode(NULL, "null");
-	}
-	
-	TreeNode* op = new TreeNode(NULL, "+");
-	TreeNode* left = new TreeNode(NULL, "0");
-	TreeNode* right = new TreeNode(NULL, "1");
-	
-	op->setLeft(left);
-	
-	treeStack[0] = op;
-	cout<< "\nNew Stack:\n";
-	print2dTreeNode(treeStack);
-	
-	bumpStack(treeStack, right);
-	
-	cout<< "\nNew Stack:\n";
-	print2dTreeNode(treeStack);
-	TreeNode* n;
-	removeTop(treeStack, n);
-	
-	cout<< "\nNew Stack:\n";
-	print2dTreeNode(treeStack);
-	//cout << n->getChar() << endl;
-	*/
 	
 	Node* stack = new Node("dank");
-	char* input= "5 + ((1 + 2) * 4) - 3";//////correct -> 5 1 2 + 4 * + 3 −
-	//cin.getline(input, 50);
-	char* postfix = "5 1 2 + 4 * + 3 -"; 
+	cout << "Input an expression in infix notation:\n";
+	char* input= new char[50];//"5 + ((1 + 2) * 4) - 3";//////correct -> 5 1 2 + 4 * + 3 −
+	cin.getline(input, 50);
 	
-	//stringToStack(stack, input);
+	stringToStack(stack, input);
 	
 	Node* current = stack;
 	
-	//convertToPostfix(stack);
-	createExpressionTree(postfix);
+	convertToPostfix(stack);
 }
 void stringToStack(Node* head, char* string){
 	int counter = 0;
@@ -115,84 +87,82 @@ void createExpressionTree(char* postfixNotation){//creates expression tree after
 	}
 	
 	int count = 0;
+	int arrayPos = 0;
 	int currentLength = 0;
-	char* currentNum = new char[4];
-	bool finishedNum = false;
+	char** seperatedChars = new char*[100];
+	for(int x = 0; x < 30; x++){
+		seperatedChars[x] = new char[4];
+		seperatedChars[x][0] = '\0';
+	}
 	
-
 	while(postfixNotation[count] != '\0'){
-		
 		char c = postfixNotation[count];
-		//cout << c;
-			
+		
 		if(c == ' '){
-
-		}else if(isOperator(c)){
+			seperatedChars[arrayPos][currentLength + 1] = '\0';
+			if(strcmp(seperatedChars[arrayPos], "") == 0){
+				arrayPos--;
+			}
+			arrayPos++;
+			currentLength = 0;
 			
-			currentNum[0] = c;
-			currentNum[1] = '\0';
-			finishedNum = true;
+		}else if(isOperator(c)){
+			if(seperatedChars[arrayPos][0] != '\0'){
+				
+				seperatedChars[arrayPos][currentLength + 1] = '\0';
+				arrayPos++;
+				currentLength = 0;
+				
+			}
+			
+			seperatedChars[arrayPos][currentLength] = c;
+			seperatedChars[arrayPos][currentLength + 1] = '\0';
+			//arrayPos++;
+			currentLength = 0;
 			
 		}else if(isNumber(c)){//digit
-		
-			currentNum[currentLength] = c;
-			currentNum[currentLength + 1] = '\0';
+			seperatedChars[arrayPos][currentLength] = c;
+			seperatedChars[arrayPos][currentLength + 1] = '\0';
 			currentLength++;
-			
-			if(!isNumber(postfixNotation[count + 1])){
-				
-				finishedNum = true;
-				currentNum[currentLength + 1] = '\0';
-				
-			}
 		}
 		
-		if(finishedNum){
+		count ++;
+	}
+
+
+	for(int x = 0; x < arrayPos + 1; x++){
+		
+		if(!isOperator(seperatedChars[x][0])){
 			
-			if(!isOperator(currentNum[0])){
-				
-				char* c2 = new char[4];
-				strcpy(c2, currentNum);
-				
-				TreeNode* tempNode = new TreeNode(NULL, c2);
-				bumpStack(treeStack, tempNode);
-				
-			}else{
-				
-				char* c2 = new char[4];
-				strcpy(c2, currentNum);
-				
-				TreeNode* tempNode = new TreeNode(NULL, c2);
-				
-				TreeNode* tempNode2;
-				removeTop(treeStack, tempNode2);
-				
-				TreeNode* tempNode3;
-				removeTop(treeStack, tempNode3);//removes top of stack and places it in tempNode3
-				
-				tempNode->setLeft(tempNode3);
-				tempNode->setRight(tempNode2);
-				
-				tempNode3->setParent(tempNode);
-				tempNode2->setParent(tempNode);
-				bumpStack(treeStack, tempNode);
-			}
+			char* c2 = new char[4];
+			strcpy(c2, seperatedChars[x]);
 			
-			currentLength = 0;
-			finishedNum = false;
+			TreeNode* tempNode = new TreeNode(NULL, c2);
+			bumpStack(treeStack, tempNode);
+			
+		}else{
+			
+			char* c2 = new char[4];
+			strcpy(c2, seperatedChars[x]);
+			
+			TreeNode* tempNode = new TreeNode(NULL, c2);
+			
+			TreeNode* tempNode2;
+			removeTop(treeStack, tempNode2);
+			
+			TreeNode* tempNode3;
+			removeTop(treeStack, tempNode3);//removes top of stack and places it in tempNode3
+			
+			tempNode->setLeft(tempNode3);
+			tempNode->setRight(tempNode2);
+			
+			tempNode3->setParent(tempNode);
+			tempNode2->setParent(tempNode);
+			bumpStack(treeStack, tempNode);
 		}
-		
-		cout << "Newline: " << endl;
-		print2dTreeNode(treeStack);
-		
-		count++;//
-		
-		
-		//print2dTreeNode(treeStack);
 		
 	}
-	print2dTreeNode(treeStack);
-	visualizeTree(treeStack[0]);
+
 	cout << "\n\nInput which format you want you thing in, (1 == infix, 2 == prefix, 3 == postfix) " << endl;	
 	
 	char* input = new char[2];
@@ -202,6 +172,7 @@ void createExpressionTree(char* postfixNotation){//creates expression tree after
 	}else if(input[0] == '2'){
 		expressionPrefix(treeStack[0]);
 	}else{
+		cout << "test" << endl;
 		expressionPostfix(treeStack[0]);
 	}
 	
@@ -209,10 +180,9 @@ void createExpressionTree(char* postfixNotation){//creates expression tree after
 
 void expressionInfix(TreeNode* expressionTree) {
 	if ((expressionTree != NULL)) {
+		
 		expressionInfix(expressionTree->getLeft());
-		if(expressionTree->getChar() != "null"){
-			cout << expressionTree->getChar() << " ";
-		}
+		cout << expressionTree->getChar() << " ";
 		expressionInfix(expressionTree->getRight());
 	}
 }
@@ -232,22 +202,20 @@ void print2dTreeNode(TreeNode** stack){
 
 void expressionPostfix(TreeNode* expressionTree) {
 	if ((expressionTree != NULL)) {
-		expressionInfix(expressionTree->getLeft());
-		expressionInfix(expressionTree->getRight());
-		if(expressionTree->getChar() != "null"){
-			cout << expressionTree->getChar() << " ";
-		}
+		
+		expressionPostfix(expressionTree->getLeft());
+		expressionPostfix(expressionTree->getRight());
+		cout << expressionTree->getChar() << " ";
 		
 	}
 }
 
 void expressionPrefix(TreeNode* expressionTree) {
 	if ((expressionTree != NULL)) {
-		if(expressionTree->getChar() != "null"){
-			cout << expressionTree->getChar() << " ";
-		}
-		expressionInfix(expressionTree->getLeft());
-		expressionInfix(expressionTree->getRight());
+		
+		cout << expressionTree->getChar() << " ";
+		expressionPrefix(expressionTree->getLeft());
+		expressionPrefix(expressionTree->getRight());
 	}
 }
 
@@ -344,8 +312,8 @@ void printNode(Node* sourceNode, Node* currentNode, char*& postfixNotation, int 
 		}else{//end of printing, runs the expression tree rofl
 			
 			postfixNotation[count + 1] = '\0';
-	
-			//createExpressionTree(postfixNotation);
+			cout << "Postfix: " << postfixNotation << endl;
+			createExpressionTree(postfixNotation);
 			
 			cout << endl;
 		}

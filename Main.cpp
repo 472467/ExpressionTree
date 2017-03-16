@@ -35,7 +35,7 @@ int main(){
 	
 	Node* stack = new Node("dank");
 	cout << "Input an expression in infix notation.\n";
-	cout << "Seperate characters with a space for ideal output:\n";
+	cout << "Seperate numbers with a space for ideal output(1 + 2 instead of 1+2):\n";
 	char* input= new char[50];//"5 + ((1 + 2) * 4) - 3";//////correct -> 5 1 2 + 4 * + 3 −
 	cin.getline(input, 50);
 	

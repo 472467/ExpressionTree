@@ -34,7 +34,8 @@ char* directionsToBalancedNode(int, int, char*&);
 int main(){
 	
 	Node* stack = new Node("dank");
-	cout << "Input an expression in infix notation:\n";
+	cout << "Input an expression in infix notation.\n";
+	cout << "Seperate characters with a space for ideal output:\n";
 	char* input= new char[50];//"5 + ((1 + 2) * 4) - 3";//////correct -> 5 1 2 + 4 * + 3 −
 	cin.getline(input, 50);
 	
@@ -182,7 +183,9 @@ void expressionInfix(TreeNode* expressionTree) {//recursive
 	if ((expressionTree != NULL)) {
 		
 		expressionInfix(expressionTree->getLeft());
-		cout << expressionTree->getChar() << " ";
+		if(strcmp(expressionTree->getChar(), "null") != 0){
+			cout << expressionTree->getChar() << " ";
+		}
 		expressionInfix(expressionTree->getRight());
 	}
 }
@@ -205,7 +208,9 @@ void expressionPostfix(TreeNode* expressionTree) {//recursive
 		
 		expressionPostfix(expressionTree->getLeft());
 		expressionPostfix(expressionTree->getRight());
-		cout << expressionTree->getChar() << " ";
+		if(strcmp(expressionTree->getChar(), "null") != 0){
+			cout << expressionTree->getChar() << " ";
+		}
 		
 	}
 }
@@ -213,7 +218,9 @@ void expressionPostfix(TreeNode* expressionTree) {//recursive
 void expressionPrefix(TreeNode* expressionTree) {//recursive 
 	if ((expressionTree != NULL)) {
 		
-		cout << expressionTree->getChar() << " ";
+		if(strcmp(expressionTree->getChar(), "null") != 0){
+			cout << expressionTree->getChar() << " ";
+		}
 		expressionPrefix(expressionTree->getLeft());
 		expressionPrefix(expressionTree->getRight());
 	}
